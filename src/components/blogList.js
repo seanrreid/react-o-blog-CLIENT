@@ -1,33 +1,31 @@
-import React, { Component } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Route, Link } from "react-router-dom";
 
-class BlogList extends Component {
-  state = {
-    posts: []
-  };
+import BlogPost from "./blogPost";
 
-  async componentDidMount() {
-    const posts = await this.loadData();
-    this.setState({
-      posts
-    });
-  }
+const loadData = async () => {
+  const url = "http://localhost:3000/v1/all";
+  const response = await fetch(url);
+  const data = response.json();
+  return data;
+};
 
-  loadData = async () => {
-    const url = "http://localhost:3000/v1/all";
-    const response = await fetch(url);
-    const data = response.json();
-    return data;
-  };
+const BlogList = (props) => {
+  const [posts, setPosts] = useState([]);
 
-  render() {
-    const { posts } = this.state;
+  useEffect(() => {
+    (async function () {
+      const posts = await loadData(`http://localhost:3000/v1/all`);
+      setPosts(posts);
+    })();
+  }, [setPosts]);
 
-    return (
-      <>
-        <h2>Blog Post</h2>
+  return (
+    <>
+      <h2>Blog Post</h2>
+      <Route path="/" exact>
         <ul>
-          {posts.map(post => {
+          {posts.map((post) => {
             return (
               <li key={`post-${post.id}`}>
                 <Link to={`/post/${post.id}`}>{post.title}</Link>
@@ -35,9 +33,12 @@ class BlogList extends Component {
             );
           })}
         </ul>
-      </>
-    );
-  }
-}
+      </Route>
+      <Route path="/post/:post_id?">
+        <BlogPost posts={posts} />
+      </Route>
+    </>
+  );
+};
 
 export default BlogList;

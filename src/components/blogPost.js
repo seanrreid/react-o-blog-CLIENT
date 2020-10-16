@@ -1,35 +1,25 @@
-import React, { Component } from "react";
+import React from "react";
+import { useParams } from "react-router-dom";
 
-class BlogPost extends Component {
-  state = {
-    post: {}
-  };
+const BlogPost = ({ posts }) => {
+  const { post_id } = useParams();
 
-  async componentDidMount() {
-    const post = await this.loadData();
-    this.setState({
-      post
-    });
-  }
+  const post = posts.find((post) => {
+    return post.id === parseInt(post_id) ? post : null;
+  });
 
-  loadData = async () => {
-    const postId = this.props.match.params.post_id;
-    const url = `http://localhost:3000/v1/post/${postId}`;
-    const response = await fetch(url);
-    const data = response.json();
-    return data;
-  };
-
-  render() {
-    console.log(this.props);
-    const { post } = this.state;
-    return (
-      <div>
-        <h2>{post.title}</h2>
-        <p>{post.content}</p>
-      </div>
-    );
-  }
-}
+  return (
+    <div>
+      {!!posts.length ? (
+        <>
+          <h2>{post.title}</h2>
+          <p>{post.content}</p>
+        </>
+      ) : (
+        <p>Loading post...</p>
+      )}
+    </div>
+  );
+};
 
 export default BlogPost;
